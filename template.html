@@ -1,0 +1,157 @@
+<style>
+@page {
+  size: A4 landscape;
+  margin: 1cm;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centraliza verticalmente */
+  align-items: center;   /* Centraliza horizontalmente */
+  height: 100vh; /* Garante que o body ocupe 100% da altura da tela */
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.tg {
+  border-collapse: separate;
+  border-spacing: 2px 0px;
+  transform-origin: center;
+  transform: scale(0.85);
+  page-break-inside: avoid;
+}
+
+.tg td,
+.tg th {
+  border: 1px solid black;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  padding: 6px 4px;
+  overflow: hidden;
+  word-break: normal;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* --- NOVO ESTILO PARA A LINHA ESPAÇADORA --- */
+.spacer-row td {
+  border: none; /* Remove todas as bordas */
+  height: 25px; /* Define a altura do espaçamento. Ajuste se necessário. */
+  padding: 0;
+}
+/* --- FIM DO NOVO ESTILO --- */
+
+
+.tg .left { text-align: left; }
+.tg .right { text-align: right; }
+.tg .top { vertical-align: top; }
+.tg .bottom { vertical-align: bottom; }
+.tg .bold { font-weight: bold; }
+.tg .italic { font-style: italic; }
+.tg .gray { background-color: #D8D8D8; }
+.tg .blue { background-color: #DEEAF6; }
+.tg .orange { background-color: #FBE4D5; }
+.tg .lightgray { background-color: #F2F2F2; }
+.tg .red-bold { color: #F00; font-weight: bold; }
+
+.tg .no-border {
+  border: none !important;
+}
+
+</style>
+
+<table class="tg">
+  <colgroup>
+    <col style="width: 312px">
+    <col style="width: 311px">
+    <col style="width: 283px">
+    <col style="width: 256px">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td class="top">{{ITEM_NUM}}</td>
+      <td class="lightgray bold" colspan="3">{{ITEM_NAME}}</td>
+    </tr>
+    <tr>
+      <td class="italic right">Fornecedor</td>
+      <td class="blue bold">{{FORN_0}}</td>
+      <td class="orange bold">{{FORN_1}}</td>
+      <td class="gray bold">{{FORN_2}}</td>
+    </tr>
+    <tr>
+      <td class="italic right">Data</td>
+      <td class="blue">{{DATA_0}}</td>
+      <td class="orange">{{DATA_1}}</td>
+      <td class="gray">{{DATA_2}}</td>
+    </tr>
+    <tr>
+      <td class="italic right">Frete</td>
+      <td class="blue">{{FRETE_VALOR_0}}</td>
+      <td class="orange">{{FRETE_VALOR_1}}</td>
+      <td class="gray">{{FRETE_VALOR_2}}</td>
+    </tr>
+    <tr>
+      <td class="italic right">Mão de obra</td>
+      <td class="blue">{{MO_0}}</td>
+      <td class="orange">{{MO_1}}</td>
+      <td class="gray">{{MO_2}}</td>
+    </tr>
+    <tr>
+      <td class="italic right">Valor total /{{ITEM_UNITY}}</td>
+      <td class="blue bold">R$ {{VALOR_FORN_0}}</td>
+      <td class="orange bold">R$ {{VALOR_FORN_1}}</td>
+      <td class="gray bold">R$ {{VALOR_FORN_2}}</td>
+    </tr>
+    <tr>
+      <td class="italic right">Valor final com análise estatística</td>
+      <td class="red-bold" colspan="3">R$ {{VALOR_FINAL}}</td>
+    </tr>
+
+    <tr class="spacer-row">
+      <td colspan="4"></td>
+    </tr>
+
+    <tr>
+      <td class="bold" colspan="2">Parâmetros calculados conforme IN 01/21:</td>
+    </tr>
+    <tr>
+      <td class="right top">Média</td>
+      <td>R$ {{MEDIA}}</td>
+    </tr>
+    <tr>
+      <td class="right top">Mediana</td>
+      <td>R$ {{MEDIANA}}</td>
+    </tr>
+    <tr>
+      <td class="right top">Menor Preço</td>
+      <td>R$ {{MENOR}}</td>
+    </tr>
+    <tr>
+      <td class="right top">Desvio Padrão</td>
+      <td>R$ {{DESVPAD}}</td>
+    </tr>
+    <tr>
+      <td class="right top">Coeficiente de Variação</td>
+      <td>{{COEFVARIA}}</td>
+    </tr>
+    <tr>
+      <td class="right bottom">Teste verificação: homogêneo ou heterogêneo?</td>
+      <td class="bottom">{{VERIF_COEF}}</td>
+    </tr>
+    <tr>
+      <td class="right top">Limite Inferior da amostra</td>
+      <td>R$ {{LIMINF}}</td>
+    </tr>
+    <tr>
+      <td class="right top">Limite Superior da amostra</td>
+      <td>R$ {{LIMSUP}}</td>
+    </tr>
+    <tr>
+      <td class="no-border" colspan="4" style="text-align: center; padding-top: 30px; font-weight: bold; color: #F00; font-size:14px; font-family:Arial, sans-serif;">
+        {{MENSAGEM_HETERO}}
+      </td>
+    </tr>
+  </tbody>
+</table>
