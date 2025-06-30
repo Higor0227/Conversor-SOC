@@ -8,10 +8,11 @@ import traceback
 import threading
 import pythoncom
 from datetime import date
-from custom_widgets import EntryWithPlaceholder
+from custom_widgets import EntryWithPlaceholder, NumberEntry
 from file_processing import DocumentProcessor
 import ast
 
+# pyinstaller main_app.spec
 
 def resource_path(relative_path):
     try:
@@ -70,7 +71,13 @@ class MainApplication:
         self._create_widgets()
         self._layout_frames()
 
+        self.insumo_de_marca = False
+
         self.status_bar.config(text="Pronto.")
+
+    def _set_insumo_de_marca(self):
+        self.insumo_de_marca = not self.insumo_de_marca
+        print(self.insumo_de_marca)
 
     def _load_logo(self, filename, size):
         """Carrega a imagem do logo usando resource_path."""
@@ -123,31 +130,32 @@ class MainApplication:
         style = ttk.Style()
         style.configure('Custom.TButton', padding=(0, 0))
 
-        for key in ["fornecedor", "data", "valor_insumo"]:
-            if key == "data":
-                data_frame = ttk.Frame(parent_frame)
-                data_frame.pack(pady=4, fill='x')
+        widgets["fornecedor"] = EntryWithPlaceholder(parent_frame, PLACEHOLDERS["fornecedor"])
+        widgets["fornecedor"].pack(pady=4, fill='x')
 
-                widgets[key] = EntryWithPlaceholder(data_frame, PLACEHOLDERS[key])
-                widgets[key].pack(side='left', fill='x', expand=True)
+        data_frame = ttk.Frame(parent_frame)
+        data_frame.pack(pady=4, fill='x')
 
-                btn_hoje = ttk.Button(
-                    data_frame,
-                    text="Hoje",
-                    command=lambda e=widgets[key]: e.set_value(date.today().strftime("%d/%m/%Y")),
-                    style='Custom.TButton'
-                )
-                btn_hoje.pack(side='left', padx=(5, 0))
-            else:
-                widgets[key] = EntryWithPlaceholder(parent_frame, PLACEHOLDERS[key])
-                widgets[key].pack(pady=4, fill='x')
+        widgets["data"] = EntryWithPlaceholder(data_frame, PLACEHOLDERS["data"])
+        widgets["data"].pack(side='left', fill='x', expand=True)
+
+        btn_hoje = ttk.Button(
+            data_frame,
+            text="Hoje",
+            command=lambda e=widgets["data"]: e.set_value(date.today().strftime("%d/%m/%Y")),
+            style='Custom.TButton'
+        )
+        btn_hoje.pack(side='left', padx=(5, 0))
+
+        widgets["valor_insumo"] = NumberEntry(parent_frame, PLACEHOLDERS["valor_insumo"])
+        widgets["valor_insumo"].pack(pady=4, fill='x')
 
         frete_frame = ttk.Frame(parent_frame)
         frete_frame.pack(fill='x')
         widgets['frete_combo'] = ttk.Combobox(frete_frame, values=FRETE_OPTIONS, state="readonly")
         widgets['frete_combo'].current(0)
         widgets['frete_combo'].pack(pady=4, fill='x')
-        widgets['valor_frete_entry'] = EntryWithPlaceholder(frete_frame, PLACEHOLDERS["valor_frete"])
+        widgets['valor_frete_entry'] = NumberEntry(frete_frame, PLACEHOLDERS["valor_frete"])
         widgets['valor_frete_entry'].pack(fill='x', pady=(0, 4))
         widgets['valor_frete_entry'].pack_forget()
 
@@ -156,7 +164,7 @@ class MainApplication:
         widgets['mo_combo'] = ttk.Combobox(mo_frame, values=MO_OPTIONS, state="readonly")
         widgets['mo_combo'].current(0)
         widgets['mo_combo'].pack(pady=4, fill='x')
-        widgets['valor_mo_entry'] = EntryWithPlaceholder(mo_frame, PLACEHOLDERS["valor_mo"])
+        widgets['valor_mo_entry'] = NumberEntry(mo_frame, PLACEHOLDERS["valor_mo"])
         widgets['valor_mo_entry'].pack(fill='x', pady=(0, 4))
         widgets['valor_mo_entry'].pack_forget()
 
@@ -168,20 +176,69 @@ class MainApplication:
                                                                                    "Sim"))
         widgets['fonte_entry'] = EntryWithPlaceholder(parent_frame, PLACEHOLDERS["fonte"])
         widgets['fonte_entry'].pack(pady=(15, 4), fill='x')
+
         ttk.Label(parent_frame, text="Anexo da cotação:").pack(anchor='w', pady=(15, 2))
-        anexo_frame = ttk.Frame(parent_frame)
-        anexo_frame.pack(fill='x')
+        # anexo_frame = ttk.Frame(parent_frame)
+        # anexo_frame.pack(fill='x')
+        #
+        # widgets['file_path_var'] = StringVar()
+        # widgets['arquivo_entry'] = ttk.Entry(anexo_frame, textvariable=widgets['file_path_var'], state='readonly')
+        # widgets['arquivo_entry'].pack(side='left', fill='x', expand=True)
+        # widgets['browse_button'] = ttk.Button(anexo_frame, text="Procurar...", command=lambda idx=col_index,
+        #                                                                                       svar=widgets[
+        #                                                                                           'file_path_var']: self._browse_file(
+        #     idx, svar), style='Custom.TButton')
+        # widgets['browse_button'].pack(side='right', padx=(5, 0))
+        #
+        # parent_frame.drop_target_register(DND_FILES)
+        # parent_frame.dnd_bind('<<Drop>>',
+        #                       lambda e, idx=col_index, svar=widgets['file_path_var']: self._handle_drop(e, idx, svar))
+
+        # Primeiro anexo
+        anexo_frame_1 = ttk.Frame(parent_frame)
+        anexo_frame_1.pack(fill='x')
+
         widgets['file_path_var'] = StringVar()
-        widgets['arquivo_entry'] = ttk.Entry(anexo_frame, textvariable=widgets['file_path_var'], state='readonly')
-        widgets['arquivo_entry'].pack(side='left', fill='x', expand=True)
-        widgets['browse_button'] = ttk.Button(anexo_frame, text="Procurar...", command=lambda idx=col_index,
-                                                                                              svar=widgets[
-                                                                                                  'file_path_var']: self._browse_file(
-            idx, svar), style='Custom.TButton')
-        widgets['browse_button'].pack(side='right', padx=(5, 0))
-        parent_frame.drop_target_register(DND_FILES)
-        parent_frame.dnd_bind('<<Drop>>',
-                              lambda e, idx=col_index, svar=widgets['file_path_var']: self._handle_drop(e, idx, svar))
+        widgets['arquivo_entry_1'] = ttk.Entry(anexo_frame_1, textvariable=widgets['file_path_var'], state='readonly')
+        widgets['arquivo_entry_1'].pack(side='left', fill='x', expand=True)
+
+        widgets['browse_button_1'] = ttk.Button(
+            anexo_frame_1,
+            text="Procurar...",
+            command=lambda idx=col_index, svar=widgets['file_path_var']: self._browse_file(idx, svar),
+            style='Custom.TButton'
+        )
+        widgets['browse_button_1'].pack(side='right', padx=(5, 0))
+
+        # Segundo anexo
+        ttk.Label(parent_frame, text="Anexo extra (Ex: Cotação de frete):").pack(anchor='w', pady=(15, 2))
+
+        anexo_frame_2 = ttk.Frame(parent_frame)
+        anexo_frame_2.pack(fill='x', pady=(5, 0))
+
+        widgets['file_path_var_2'] = StringVar()
+        widgets['arquivo_entry_2'] = ttk.Entry(anexo_frame_2, textvariable=widgets['file_path_var_2'], state='readonly')
+        widgets['arquivo_entry_2'].pack(side='left', fill='x', expand=True)
+
+        widgets['browse_button_2'] = ttk.Button(
+            anexo_frame_2,
+            text="Procurar...",
+            command=lambda idx=col_index, svar=widgets['file_path_var_2']: self._browse_file(idx, svar),
+            style='Custom.TButton'
+        )
+        widgets['browse_button_2'].pack(side='right', padx=(5, 0))
+
+        # Se você usa drag and drop, adicione um identificador único por entrada
+        widgets['arquivo_entry_1'].drop_target_register(DND_FILES)
+        widgets['arquivo_entry_1'].dnd_bind('<<Drop>>', lambda e, idx=col_index, svar=widgets['file_path_var']: self._handle_drop(e, idx, svar))
+
+        widgets['arquivo_entry_2'].drop_target_register(DND_FILES)
+        widgets['arquivo_entry_2'].dnd_bind('<<Drop>>', lambda e, idx=col_index, svar=widgets['file_path_var_2']: self._handle_drop(e, idx, svar))
+
+
+
+
+
         return widgets
 
     def set_workforce(self):
@@ -296,6 +353,8 @@ class MainApplication:
 
         # Usa .grid() para TODOS os botões dentro de 'buttons_subframe'
         # Linha 0
+        ttk.Checkbutton(buttons_subframe, text="Insumo de marca", command=self._set_insumo_de_marca).grid(row=0, column=4, padx=5, pady=5, sticky='ew')
+
         ttk.Button(buttons_subframe, text="Não é MO", command=self.set_workforce).grid(row=0, column=0, padx=5, pady=5,
                                                                                        sticky='ew')
         ttk.Button(buttons_subframe, text="Sem Frete", command=self.set_no_shipping).grid(row=0, column=1, padx=5,
@@ -360,20 +419,22 @@ class MainApplication:
 
             widgets['fornecedor'].set_value(supplier_info.get("nome", ""))
             widgets['data'].set_value(supplier_info.get("data_str", ""))
-            widgets['valor_insumo'].set_value(str(supplier_info.get("valor_str", "")).replace('.', ','))
+
+            valor_lido_do_arquivo = str(supplier_info.get("valor_str", ""))
+
+            widgets['valor_insumo'].set_value(valor_lido_do_arquivo)
             widgets['fonte_entry'].set_value(supplier_info.get("fonte_str", ""))
 
             widgets['frete_combo'].set(supplier_info.get("frete_tipo", FRETE_OPTIONS[0]))
             widgets['mo_combo'].set(supplier_info.get("mo_tipo", MO_OPTIONS[0]))
 
-            # Mostra e preenche os campos de valor condicional
             self._handle_combo_selection(widgets['valor_frete_entry'], widgets['frete_combo'], "Valor")
             if widgets['frete_combo'].get() == "Valor":
-                widgets['valor_frete_entry'].set_value(str(supplier_info.get("frete_valor_str", "")).replace('.', ','))
+                widgets['valor_frete_entry'].set_value(str(supplier_info.get("frete_valor_str", "")))
 
             self._handle_combo_selection(widgets['valor_mo_entry'], widgets['mo_combo'], "Sim")
             if widgets['mo_combo'].get() == "Sim":
-                widgets['valor_mo_entry'].set_value(str(supplier_info.get("mo_valor_str", "")).replace('.', ','))
+                widgets['valor_mo_entry'].set_value(str(supplier_info.get("mo_valor_str", "")))
 
             caminho_anexo = supplier_info.get("arquivo_path_raw", "")
             if caminho_anexo:
@@ -433,10 +494,13 @@ class MainApplication:
             messagebox.showerror("Erro de Diretório", "Por favor, especifique um diretório de saída válido.")
             return
 
+        # 1. Coleta os dados da UI (que estarão no formato brasileiro "1.234,56")
         gui_data = self._collect_data_for_processing()
+
+        # 2. Passa os dados DIRETAMENTE para o DocumentProcessor, sem nenhuma conversão aqui.
         gui_data['output_directory'] = output_directory
 
-        if not gui_data["fornecedores_data"]:
+        if not gui_data.get("fornecedores_data"):
             messagebox.showwarning("Nenhum Dado", "Nenhum dado de fornecedor preenchido para processar.")
             return
 
@@ -448,6 +512,7 @@ class MainApplication:
         def process_task():
             pythoncom.CoInitialize()
             try:
+                # O processador recebe os dados no formato BR e ele mesmo os converte internamente.
                 processor = DocumentProcessor(app_base_path=resource_path('.'),
                                               output_target_directory=output_directory, structured_gui_data=gui_data)
                 processor.execute()
@@ -482,13 +547,13 @@ class MainApplication:
 
     def clear_all_entries(self):
         """Limpa todos os campos de entrada e os reseta para o estado padrão."""
-        self.insumo_entry.delete(0, 'end');
+        self.insumo_entry.delete(0, 'end')
         self.insumo_entry.put_placeholder()
-        self.item_num_entry.delete(0, 'end');
+        self.item_num_entry.delete(0, 'end')
         self.item_num_entry.put_placeholder()
 
         self.unidade_entry.set(UNITY_OPTIONS[0])
-        self.unidade_outro_entry.delete(0, 'end');
+        self.unidade_outro_entry.delete(0, 'end')
         self.unidade_outro_entry.put_placeholder()
         self.unidade_outro_entry.pack_forget()
 
@@ -504,6 +569,8 @@ class MainApplication:
             col_widgets['mo_combo'].set(MO_OPTIONS[0])
             if 'file_path_var' in col_widgets:
                 col_widgets['file_path_var'].set("")
+            if 'file_path_var_2' in col_widgets:
+                col_widgets['file_path_var_2'].set("")
 
         self.output_dir_entry.delete(0, 'end')
         self.png_conversion_status = [0, 0, 0]
@@ -545,13 +612,17 @@ class MainApplication:
         help_win.wait_window()
 
     def _collect_data_for_processing(self):
-        def get_val(widget):
-            if hasattr(widget, 'get_content'): return widget.get_content()
-            return widget.get()
+        """
+        Coleta os dados da UI para processamento.
+        Esta versão salva os valores numéricos no formato brasileiro original (ex: "1.234,56")
+        para manter a consistência com a lógica de importação e processamento.
+        """
 
-        def get_numeric(widget):
-            val = get_val(widget)
-            return val.replace(',', '.') if val else ""
+        def get_val(widget):
+            """Helper para obter o valor real de qualquer widget, tratando os placeholders."""
+            if hasattr(widget, 'get_content'):
+                return widget.get_content()
+            return widget.get()
 
         unidade_selecionada = get_val(self.unidade_entry)
         if unidade_selecionada == "Outro":
@@ -559,23 +630,34 @@ class MainApplication:
         else:
             unidade_final = unidade_selecionada
 
-        data_package = {"insumo": get_val(self.insumo_entry), "item_num": get_val(self.item_num_entry),
-                        "unidade": unidade_final,
-                        "png_status": self.png_conversion_status,
-                        "fornecedores_data": []}
+        data_package = {
+            "insumo": get_val(self.insumo_entry),
+            "item_num": get_val(self.item_num_entry),
+            "unidade": unidade_final,
+            "output_directory": self.output_dir_entry.get(), # Adicionado para salvar no data.txt
+            "fornecedores_data": [],
+            "insumo_de_marca": self.insumo_de_marca
+        }
 
         for i in range(3):
             widgets = self.supplier_widgets_list[i]
-            if get_val(widgets['valor_insumo']):
-                supplier_info = {"nome": get_val(widgets['fornecedor']), "data_str": get_val(widgets['data']),
-                                 "valor_str": get_numeric(widgets['valor_insumo']),
-                                 "frete_tipo": get_val(widgets['frete_combo']),
-                                 "frete_valor_str": get_numeric(widgets['valor_frete_entry']),
-                                 "mo_tipo": get_val(widgets['mo_combo']),
-                                 "mo_valor_str": get_numeric(widgets['valor_mo_entry']),
-                                 "fonte_str": get_val(widgets['fonte_entry']),
-                                 "arquivo_path_raw": get_val(widgets['file_path_var']), }
+            # Processa o fornecedor apenas se ele tiver um nome ou valor
+            if get_val(widgets['fornecedor']) or get_val(widgets['valor_insumo']):
+                # A CORREÇÃO ESTÁ AQUI: Nenhum .replace() é feito. Os valores são coletados como estão.
+                supplier_info = {
+                    "nome": get_val(widgets['fornecedor']),
+                    "data_str": get_val(widgets['data']),
+                    "valor_str": get_val(widgets['valor_insumo']),
+                    "frete_tipo": get_val(widgets['frete_combo']),
+                    "frete_valor_str": get_val(widgets['valor_frete_entry']),
+                    "mo_tipo": get_val(widgets['mo_combo']),
+                    "mo_valor_str": get_val(widgets['valor_mo_entry']),
+                    "fonte_str": get_val(widgets['fonte_entry']),
+                    "arquivo_path_raw": get_val(widgets['file_path_var']),
+                    "arquivo_2_path_raw": get_val(widgets['file_path_var_2'])
+                }
                 data_package["fornecedores_data"].append(supplier_info)
+
         return data_package
 
 

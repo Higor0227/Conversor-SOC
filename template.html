@@ -59,6 +59,9 @@ body {
 .tg .no-border {
   border: none !important;
 }
+.tg .red-border {
+  border: 2px solid #F00; color: #F00; font-weight: bold; /* Borda vermelha de 2px */
+}
 
 </style>
 
@@ -99,14 +102,14 @@ body {
       <td class="gray">{{MO_2}}</td>
     </tr>
     <tr>
-      <td class="italic right">Valor total /{{ITEM_UNITY}}</td>
+      <td class="italic right">Valor do item (/ {{ITEM_UNITY}})</td>
       <td class="blue bold">R$ {{VALOR_FORN_0}}</td>
       <td class="orange bold">R$ {{VALOR_FORN_1}}</td>
       <td class="gray bold">R$ {{VALOR_FORN_2}}</td>
     </tr>
     <tr>
       <td class="italic right">Valor final com análise estatística</td>
-      <td class="red-bold" colspan="3">R$ {{VALOR_FINAL}}</td>
+      <td class="red-border" colspan="3">R$ {{VALOR_FINAL}}</td>
     </tr>
 
     <tr class="spacer-row">
@@ -148,8 +151,11 @@ body {
       <td class="right top">Limite Superior da amostra</td>
       <td>R$ {{LIMSUP}}</td>
     </tr>
+    <tr class="spacer-row">
+      <td colspan="4"></td>
+    </tr>
     <tr>
-      <td class="no-border" colspan="4" style="text-align: center; padding-top: 30px; font-weight: bold; color: #F00; font-size:14px; font-family:Arial, sans-serif;">
+      <td class="{{BORDA}}" colspan="4" style="text-align: center; padding-top: 20px; padding-bottom: 20px; font-weight: bold; color: #F00; font-size:19px; font-family:Arial, sans-serif;">
         {{MENSAGEM_HETERO}}
       </td>
     </tr>

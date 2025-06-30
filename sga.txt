@@ -1,0 +1,1 @@
+234,00;25/06/2025;f1: aaa | f2: bbb | f3: ccc;C:\Users\higor.marques\Documents\PythonProject\in.pdf
