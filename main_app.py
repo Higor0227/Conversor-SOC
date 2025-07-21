@@ -11,6 +11,7 @@ from datetime import date
 from custom_widgets import EntryWithPlaceholder, NumberEntry
 from file_processing import DocumentProcessor
 import ast
+from tkinter import BooleanVar
 
 # pyinstaller main_app.spec
 
@@ -76,7 +77,7 @@ class MainApplication:
         self.status_bar.config(text="Pronto.")
 
     def _set_insumo_de_marca(self):
-        self.insumo_de_marca = not self.insumo_de_marca
+        self.insumo_de_marca = self.supplier_widgets_list[0]["insumo_de_marca_var"].get() #not self.insumo_de_marca
         print(self.insumo_de_marca)
 
     def _load_logo(self, filename, size):
@@ -199,7 +200,7 @@ class MainApplication:
         anexo_frame_1.pack(fill='x')
 
         widgets['file_path_var'] = StringVar()
-        widgets['arquivo_entry_1'] = ttk.Entry(anexo_frame_1, textvariable=widgets['file_path_var'], state='readonly')
+        widgets['arquivo_entry_1'] = ttk.Entry(anexo_frame_1, textvariable=widgets['file_path_var'], state='normal')
         widgets['arquivo_entry_1'].pack(side='left', fill='x', expand=True)
 
         widgets['browse_button_1'] = ttk.Button(
@@ -217,7 +218,7 @@ class MainApplication:
         anexo_frame_2.pack(fill='x', pady=(5, 0))
 
         widgets['file_path_var_2'] = StringVar()
-        widgets['arquivo_entry_2'] = ttk.Entry(anexo_frame_2, textvariable=widgets['file_path_var_2'], state='readonly')
+        widgets['arquivo_entry_2'] = ttk.Entry(anexo_frame_2, textvariable=widgets['file_path_var_2'], state='normal')
         widgets['arquivo_entry_2'].pack(side='left', fill='x', expand=True)
 
         widgets['browse_button_2'] = ttk.Button(
@@ -235,8 +236,19 @@ class MainApplication:
         widgets['arquivo_entry_2'].drop_target_register(DND_FILES)
         widgets['arquivo_entry_2'].dnd_bind('<<Drop>>', lambda e, idx=col_index, svar=widgets['file_path_var_2']: self._handle_drop(e, idx, svar))
 
+        # Cria o botão de insumo de marca
+        if col_index == 0:
+            buttons_subframe = ttk.Frame(parent_frame)
+            buttons_subframe.pack(fill='x', pady=(10, 0))
 
+            widgets["insumo_de_marca_var"] = BooleanVar()
 
+            ttk.Checkbutton(
+                buttons_subframe,
+                text="Insumo de marca",
+                variable=widgets["insumo_de_marca_var"],
+                command=self._set_insumo_de_marca
+            ).grid(row=0, column=0, padx=5, pady=5, sticky='ew')
 
 
         return widgets
@@ -270,6 +282,8 @@ class MainApplication:
                     col_widgets[key].put_placeholder()
             if 'file_path_var' in col_widgets:
                 col_widgets['file_path_var'].set("")
+
+        self.supplier_widgets_list[0]["insumo_de_marca_var"].set(False)    
         self.output_dir_entry.delete(0, 'end')
         self.status_bar.config(text="Pronto. Campos de preço e item limpos.")
 
@@ -353,27 +367,16 @@ class MainApplication:
 
         # Usa .grid() para TODOS os botões dentro de 'buttons_subframe'
         # Linha 0
-        ttk.Checkbutton(buttons_subframe, text="Insumo de marca", command=self._set_insumo_de_marca).grid(row=0, column=4, padx=5, pady=5, sticky='ew')
-
-        ttk.Button(buttons_subframe, text="Não é MO", command=self.set_workforce).grid(row=0, column=0, padx=5, pady=5,
-                                                                                       sticky='ew')
-        ttk.Button(buttons_subframe, text="Sem Frete", command=self.set_no_shipping).grid(row=0, column=1, padx=5,
-                                                                                          pady=5, sticky='ew')
-        ttk.Button(buttons_subframe, text="Frete Valor", command=self.set_value_shipping).grid(row=0, column=2, padx=5,
-                                                                                               pady=5, sticky='ew')
-
+        ttk.Button(buttons_subframe, text="Não é MO", command=self.set_workforce).grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+        ttk.Button(buttons_subframe, text="Sem Frete", command=self.set_no_shipping).grid(row=0, column=1, padx=5, pady=5, sticky='ew')
+        ttk.Button(buttons_subframe, text="Frete Valor", command=self.set_value_shipping).grid(row=0, column=2, padx=5, pady=5, sticky='ew')
         ttk.Button(buttons_subframe, text="Importar", command=self.importtxtfile).grid(row=0, column=3, padx=5, pady=5, sticky='ew')
 
         # Linha 1
-        ttk.Button(buttons_subframe, text="Limpar Tudo", command=self.clear_all_entries).grid(row=1, column=0, padx=5,
-                                                                                              pady=5, sticky='ew')
-        ttk.Button(buttons_subframe, text="Limpar Valores", command=self.clear_half_entries).grid(row=1, column=1,
-                                                                                                  padx=5, pady=5,
-                                                                                                  sticky='ew')
-        ttk.Button(buttons_subframe, text="Limpar Cache", command=self.perform_desbug).grid(row=1, column=2, padx=5,
-                                                                                            pady=5, sticky='ew')
-        ttk.Button(buttons_subframe, text="Ajuda", command=self.show_help_window).grid(row=1, column=3, padx=5, pady=5,
-                                                                                       sticky='ew')
+        ttk.Button(buttons_subframe, text="Limpar Tudo", command=self.clear_all_entries).grid(row=1, column=0, padx=5, pady=5, sticky='ew')
+        ttk.Button(buttons_subframe, text="Limpar Valores", command=self.clear_half_entries).grid(row=1, column=1, padx=5, pady=5, sticky='ew')
+        ttk.Button(buttons_subframe, text="Limpar Cache", command=self.perform_desbug).grid(row=1, column=2, padx=5, pady=5, sticky='ew')
+        ttk.Button(buttons_subframe, text="Ajuda", command=self.show_help_window).grid(row=1, column=3, padx=5, pady=5, sticky='ew')
 
         # Empacota o frame que contém o grid de botões
         buttons_subframe.pack(fill='x', pady=5)
@@ -401,6 +404,8 @@ class MainApplication:
         self.item_num_entry.set_value(data.get("item_num", ""))
         self.output_dir_entry.delete(0, tk.END)
         self.output_dir_entry.insert(0, data.get("output_directory", ""))
+        self.supplier_widgets_list[0]["insumo_de_marca_var"].set(data.get("insumo_de_marca", False))
+        self._set_insumo_de_marca
 
         unidade_importada = data.get("unidade", UNITY_OPTIONS[0])
         if unidade_importada in UNITY_OPTIONS:
@@ -518,7 +523,7 @@ class MainApplication:
                 processor.execute()
                 self.master.after(0, lambda: self.status_bar.config(text="Processo concluído com sucesso!"))
                 self.master.after(0, lambda: messagebox.showinfo("Sucesso",
-                                                                 f"Documento 'in.pdf' e 'sga.txt' criados com sucesso em:\n{output_directory}"))
+                                                                 f"Documento 'in.pdf', 'data.txt' e 'sga.txt' criados com sucesso:\n{output_directory}"))
             except Exception as e:
                 self.master.after(0,
                                   lambda: self.status_bar.config(text="Erro! Verifique o console para mais detalhes."))
@@ -571,7 +576,9 @@ class MainApplication:
                 col_widgets['file_path_var'].set("")
             if 'file_path_var_2' in col_widgets:
                 col_widgets['file_path_var_2'].set("")
+            
 
+        self.supplier_widgets_list[0]["insumo_de_marca_var"].set(False)
         self.output_dir_entry.delete(0, 'end')
         self.png_conversion_status = [0, 0, 0]
         self.status_bar.config(text="Pronto. Todos os campos foram limpos.")
